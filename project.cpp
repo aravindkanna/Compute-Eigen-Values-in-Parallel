@@ -24,6 +24,16 @@ bool check_for_symmetricity(vector<vector<double> > mat, int size){
 	return true;
 }//eof
 
+bool is_upper_triangular(vector<vector< double> > mat, int size){
+	for(int i=1;i<size;i++){
+		for(int j=0;j<i;j++){
+			if(mat[i][j])
+				return false;
+		}	
+	}
+	return true;
+}
+
 vector<vector<double> > transpose(vector<vector<double> > A, int size){
 	vector<vector<double> > B(size, vector<double> (size));
 	for(int i=0;i<size;i++){
