@@ -24,6 +24,16 @@ bool check_for_symmetricity(vector<vector<double> > mat, int size){
 	return true;
 }//eof
 
+vector<vector<double> > transpose(vector<vector<double> > A, int size){
+	vector<vector<double> > B(size, vector<double> (size));
+	for(int i=0;i<size;i++){
+		for(int j=0;j<size;j++){
+			B[i][j] = A[j][i];
+		}
+	}
+	return B;
+}
+
 vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double> > B, 
 	int size){
 	//multiplies A with B returns A*B
@@ -37,8 +47,8 @@ vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double>
 			for(m=0;m<size;m++) {
 				C[i][j]=A[i][m]*B[m][j]+C[i][j];
 				if((C[i][j] < cos(90*PI/180) && C[i][j] > 0) 
-					|| (C[i][j] > cos(90*PI/180) && C[i][j] < 0)){
-					C[i][j] = 0;
+					|| (C[i][j] > -cos(90*PI/180) && C[i][j] < 0)){
+					C[i][j] = 0.0;
 				}
 			}
 		}
@@ -103,7 +113,7 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 					flag++;
 				}
 				else{
-					q = mat_mul(q, G, size);
+					q = mat_mul(G, q, size);
 				}
 
 				//time to make the element zero
@@ -112,7 +122,7 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 		}
 	}
 	r = mat;
-
+	q = transpose(q, size);
 	return make_pair(q, r);
 }
 
@@ -164,7 +174,6 @@ int main(){
 	print_mat(p.second, N);
 	cout << endl;
 	cout << endl;
-
 
 	return 0;
 }
