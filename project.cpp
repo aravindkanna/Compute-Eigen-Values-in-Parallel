@@ -139,14 +139,22 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 void print_mat(vector<vector<double> > mat, int size){
 	for(int i=0;i<size;i++){
 		for(int j=0;j<size;j++){
-			/*if(abs(mat[i][j]) < cos(90*PI/180)){
-				cout << '0' << "     ";
-			}
-			else*/
 				cout << mat[i][j] << "     ";
 		}
 		cout << endl;
 	}
+}
+
+vector<double> find_eigens(vector<vector<double> > mat, int size){
+	while(!is_upper_triangular(mat, size)){
+		pair<vector<vector<double> >, vector<vector<double> > > p = qr_decomp(mat, size);
+		mat = mat_mul(p.second, p.first, size);
+	}	
+	vector<double> res(size);
+	for(int i=0;i<size;i++){
+		res[i] = mat[i][i];
+	}
+	return res;
 }
 
 int main(){
@@ -183,6 +191,12 @@ int main(){
 	cout << endl;
 	print_mat(p.second, N);
 	cout << endl;
+	cout << endl;
+
+	vector<double> res = find_eigens(mat, N);
+	for(int i=0;i<N;i++){
+		cout << res[i] << "    ";
+	}
 	cout << endl;
 
 	return 0;
