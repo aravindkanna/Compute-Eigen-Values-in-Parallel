@@ -3,10 +3,15 @@
 #include <cstdio>
 #include <vector>
 #include <math.h>
+#include <stdlib.h>
 
 #include "omp.h"
 
+#define PI 3.14159265
+
 using namespace std;
+
+void print_mat(vector<vector<double> > mat, int size);
 
 bool check_for_symmetricity(vector<vector<double> > mat, int size){
 	for(int i=0;i<size;i++){
@@ -31,6 +36,10 @@ vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double>
 			C[i][j]=0.; // set initial value of resulting matrix C = 0
 			for(m=0;m<size;m++) {
 				C[i][j]=A[i][m]*B[m][j]+C[i][j];
+				if((C[i][j] < cos(90*PI/180) && C[i][j] > 0) 
+					|| (C[i][j] > cos(90*PI/180) && C[i][j] < 0)){
+					C[i][j] = 0;
+				}
 			}
 		}
 	}
@@ -42,8 +51,9 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 	vector<vector<double> > q(size, vector<double> (size));//Orthogonal Matrix
 	vector<vector<double> > r(size, vector<double> (size));//Upper Triangular Matrix
 
-	for(int i=size-1;i>0;i--){
-		for(int j=0;j<size-1;j++){
+	int flag = 0;
+	for(/*int i=size-1;i>0;i--*/int j=0;j<size-1;j++){
+		for(/*int j=0;j<size-1;j++*/int i=size-1;i>j;i--){
 			if(mat[i][j]){
 				//need to make it zero
 				int l = i;
@@ -58,11 +68,15 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 				//find cos as c and sin as s
 				double r = sqrt((mat[l][j]*mat[l][j])+(mat[h][j]*mat[h][j]));
 				double c = mat[h][j]/r;
-				double s = mat[l][j]/r;
+				double s = -mat[l][j]/r;
+
+				/*double theta = atan(-mat[l][j]/mat[h][j])*180/PI;
+				c = cos(theta);
+				s = sin(theta);*/
 
 				//create givens rotation matrix for l and h
 				vector<vector<double> > G(size, vector<double> (size));
-				int flag = 0;
+				
 				for(int a=0;a<size;a++){
 					for(int b=0;b<size;b++){
 						if(a==b && a!=l && a!=h){
@@ -86,9 +100,10 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 				}
 				if(!flag){
 					q = G;
+					flag++;
 				}
 				else{
-					q = mat_mul(G, q, size);
+					q = mat_mul(q, G, size);
 				}
 
 				//time to make the element zero
@@ -104,7 +119,11 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 void print_mat(vector<vector<double> > mat, int size){
 	for(int i=0;i<size;i++){
 		for(int j=0;j<size;j++){
-			cout << mat[i][j] << " ";
+			/*if(abs(mat[i][j]) < cos(90*PI/180)){
+				cout << '0' << "     ";
+			}
+			else*/
+				cout << mat[i][j] << "     ";
 		}
 		cout << endl;
 	}
@@ -135,8 +154,16 @@ int main(){
 	vector<vector<double> > original(N, vector<double> (N));
 	original = mat;
 
-	mat = mat_mul(mat, mat, N);
-	print_mat(mat, N);
+	//mat = mat_mul(mat, mat, N);
+	//print_mat(mat, N);
+
+	pair<vector<vector<double> >, vector<vector<double> > > p = qr_decomp(mat, N);
+	print_mat(p.first, N);
+	cout << endl ;
+	cout << endl;
+	print_mat(p.second, N);
+	cout << endl;
+	cout << endl;
 
 
 	return 0;
