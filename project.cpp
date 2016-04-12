@@ -14,6 +14,7 @@ using namespace std;
 void print_mat(vector<vector<double> > mat, int size);
 
 bool check_for_symmetricity(vector<vector<double> > mat, int size){
+	#pragma omp parallel for private(i, j)
 	for(int i=0;i<size;i++){
 		for(int j=i+1;j<size;j++){
 			if(mat[i][j] != mat[j][i]){
@@ -25,6 +26,7 @@ bool check_for_symmetricity(vector<vector<double> > mat, int size){
 }//eof
 
 bool is_upper_triangular(vector<vector< double> > mat, int size){
+	#pragma omp parallel for private(i, j)
 	for(int i=1;i<size;i++){
 		for(int j=0;j<i;j++){
 			if(mat[i][j])
@@ -36,6 +38,7 @@ bool is_upper_triangular(vector<vector< double> > mat, int size){
 
 vector<vector<double> > transpose(vector<vector<double> > A, int size){
 	vector<vector<double> > B(size, vector<double> (size));
+	#pragma omp parallel for
 	for(int i=0;i<size;i++){
 		for(int j=0;j<size;j++){
 			B[i][j] = A[j][i];
@@ -72,8 +75,8 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 	vector<vector<double> > r(size, vector<double> (size));//Upper Triangular Matrix
 
 	int flag = 0;
-	for(/*int i=size-1;i>0;i--*/int j=0;j<size-1;j++){
-		for(/*int j=0;j<size-1;j++*/int i=size-1;i>j;i--){
+	for(int j=0;j<size-1;j++){
+		for(int i=size-1;i>j;i--){
 			if(mat[i][j]){
 				//need to make it zero
 				int l = i;
@@ -137,6 +140,7 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 }
 
 void print_mat(vector<vector<double> > mat, int size){
+	#pragma omp parallel for private(i, j) 
 	for(int i=0;i<size;i++){
 		for(int j=0;j<size;j++){
 				cout << mat[i][j] << "     ";
@@ -151,6 +155,7 @@ vector<double> find_eigens(vector<vector<double> > mat, int size){
 		mat = mat_mul(p.second, p.first, size);
 	}	
 	vector<double> res(size);
+	#pragma omp parallel for private(i)
 	for(int i=0;i<size;i++){
 		res[i] = mat[i][i];
 	}
