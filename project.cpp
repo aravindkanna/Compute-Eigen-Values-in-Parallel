@@ -191,18 +191,15 @@ int main(){
 	//print_mat(mat, N);
 
 	pair<vector<vector<double> >, vector<vector<double> > > p = qr_decomp(mat, N);
-	print_mat(p.first, N);
+	/*print_mat(p.first, N);
 	cout << endl ;
 	cout << endl;
 	print_mat(p.second, N);
 	cout << endl;
-	cout << endl;
+	cout << endl;*/
 
+	//res is the vector which stores eigen values
 	vector<double> res = find_eigens(mat, N);
-	for(int i=0;i<N;i++){
-		cout << res[i] << "    ";
-	}
-	cout << endl;
 
 	return 0;
 }
