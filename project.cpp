@@ -185,7 +185,7 @@ int main(){
 	}
 
 	vector<vector<double> > original(N, vector<double> (N));
-	original = mat;
+	//original = mat;
 
 	//mat = mat_mul(mat, mat, N);
 	//print_mat(mat, N);
