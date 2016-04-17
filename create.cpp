@@ -34,10 +34,13 @@ int main(){
 			else{
 				mat[i][j] = rand()%100000 + 1;
 			}
-			//cout << mat[i][j] << "    " ;
+			mfile << mat[i][j] << "    " ;
 		}
-		//cout << endl;
+		if(i!=N-1)
+			mfile << endl;
 	}
+
+
 	
 
 	return 0;
