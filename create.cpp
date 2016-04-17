@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <ctime>
 
 #include "omp.h"
 
@@ -25,20 +26,25 @@ int main(){
 	cout << s << endl;
 	ofstream mfile (s.c_str());
 
-	#pragma omp parallel for private(i, j)
+	clock_t c_start = clock();
+	//#pragma omp parallel for private(i, j)
 	for(int i=0;i<N;i++){
 		for(int j=0;j<N;j++){
 			if(i > j){
 				mat[i][j] = mat[j][i];
 			}
 			else{
-				mat[i][j] = rand()%100000 + 1;
+				//mat[i][j] = rand()%100000 + 1;
+				mat[i][j] = j;
 			}
 			mfile << mat[i][j] << "    " ;
 		}
 		if(i!=N-1)
 			mfile << endl;
 	}
+	clock_t c_end = clock();
+
+	cout << c_end - c_start << endl;
 
 
 	
