@@ -27,7 +27,7 @@ int main(){
 	ofstream mfile (s.c_str());
 
 	clock_t c_start = clock();
-	//#pragma omp parallel for private(i, j)
+	#pragma omp parallel for private(i, j)
 	for(int i=0;i<N;i++){
 		for(int j=0;j<N;j++){
 			if(i > j){
