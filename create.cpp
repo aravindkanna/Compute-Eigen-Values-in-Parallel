@@ -15,7 +15,8 @@ int main(){
 	cin >> N;
 
 	vector<vector<double> > mat(N, vector<double> (N));
-	//ofstream file;
+
+	//creating file
 	stringstream ss;
 	ss << N;
 	string s;
@@ -24,9 +25,20 @@ int main(){
 	cout << s << endl;
 	ofstream mfile (s.c_str());
 
+	#pragma omp parallel for private(i, j)
+	for(int i=0;i<N;i++){
+		for(int j=0;j<N;j++){
+			if(i > j){
+				mat[i][j] = mat[j][i];
+			}
+			else{
+				mat[i][j] = rand()%100000 + 1;
+			}
+			//cout << mat[i][j] << "    " ;
+		}
+		//cout << endl;
+	}
 	
-	//file.open(s + ".txt");
-
 
 	return 0;
 }
