@@ -15,3 +15,10 @@ Then it asks for the size of matrix which you want to work on. Let us say we wan
 then it asks for the size of matrix you want. After entering `n` it creates a matrix of dimension `nxn` and stores that in a file `n.txt` by creating it in the same folder. Now the other file uses this `.txt` file for input and does the remaining job for us.
 
 I have plotted a sample graph by finding the total run times for different sizes of input. ![Graph](https://github.com/aravindkanna/Compute-Eigen-Values-in-Parallel/blob/master/plot.png) Here is that.
+***
+|                |       10   |    15   |    20     |    25     |    30      |    35      |
+|----------------|------------|---------|-----------|-----------|------------|------------|
+|  Parallel      | 0.559655   |2.960254 | 20.822474 | 44.583862 | 162.299383 | 281.233365 |
+|  Sequential    | 0.574918   |3.789751 | 22.367326 | 46.779158 | 172.798929 | 293.019897 |<br>
+***
+Note : The times are number of clock ticks per 1000000.
