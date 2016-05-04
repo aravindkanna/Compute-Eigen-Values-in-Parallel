@@ -4,6 +4,9 @@
 #include <vector>
 #include <math.h>
 #include <stdlib.h>
+#include <sstream>
+#include <string>
+#include <fstream>
 
 #include "omp.h"
 
@@ -168,14 +171,35 @@ int main(){
 	
 	vector<vector<double> > mat(N, vector<double> (N));
 
-	cout << "Enter Elements Row-wise" << endl;
-	for(int i=0;i<N;i++){
-		cout << "Enter row: " << i << endl; 
-		for(int j=0;j<N;j++){
-			double x;
-			cin >> x;
-			mat[i][j] = x;
+	/***
+		Taking input from the file of size entered..
+		Note that the N.txt file should exist for this to run.
+		You can generate that using create.cpp
+	***/
+	stringstream ss;
+	ss << N;
+	string s;
+	ss >> s;
+	s = s+".txt";
+
+	fstream myfile (s.c_str());
+	string line;
+
+	if(myfile.is_open()){
+		int i=0, j=0;
+		while(getline(myfile, line)){
+			j=0;
+			istringstream iss(line);
+			string token;
+			while(getline(iss, token, ' ')){
+				//cout << token << "                " ;
+				stringstream ss(token);
+				ss >> mat[i][j];
+				j++;
+			}
+			i++;
 		}
+		myfile.close();//it is a good way to close a file.
 	}
 
 	//check whether the matrix is symmetric or not
@@ -184,19 +208,7 @@ int main(){
 		return 0;
 	}
 
-	vector<vector<double> > original(N, vector<double> (N));
-	//original = mat;
-
-	//mat = mat_mul(mat, mat, N);
-	//print_mat(mat, N);
-
-	pair<vector<vector<double> >, vector<vector<double> > > p = qr_decomp(mat, N);
-	/*print_mat(p.first, N);
-	cout << endl ;
-	cout << endl;
-	print_mat(p.second, N);
-	cout << endl;
-	cout << endl;*/
+	//pair<vector<vector<double> >, vector<vector<double> > > p = qr_decomp(mat, N);
 
 	//res is the vector which stores eigen values
 	vector<double> res = find_eigens(mat, N);

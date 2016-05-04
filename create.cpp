@@ -23,7 +23,7 @@ int main(){
 	string s;
 	ss >> s;
 	s = s+".txt";
-	cout << s << endl;
+	cout << s << " is created!!"<< endl;
 	ofstream mfile (s.c_str());
 
 	clock_t c_start = clock();
@@ -37,14 +37,14 @@ int main(){
 				//mat[i][j] = rand()%100000 + 1;
 				mat[i][j] = j;
 			}
-			mfile << mat[i][j] << "    " ;
+			mfile << mat[i][j] << " " ;
 		}
 		if(i!=N-1)
 			mfile << endl;
 	}
 	clock_t c_end = clock();
 
-	cout << c_end - c_start << endl;
+	//cout << c_end - c_start << endl;
 
 
 	
