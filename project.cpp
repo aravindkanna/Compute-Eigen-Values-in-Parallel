@@ -14,6 +14,7 @@
 
 using namespace std;
 
+//####################################################################################
 //UTILITY FUNCTIONS
 void print_mat(vector<vector<double> > mat, int size);
 void print_vec(vector<double> vec);
@@ -25,7 +26,7 @@ vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double>
 pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<double> > mat,
  int size);
 vector<double> find_eigens(vector<vector<double> > mat, int size);
-
+//#####################################################################################
 
 bool check_for_symmetricity(vector<vector<double> > mat, int size){
 	#pragma omp parallel for private(i, j)
