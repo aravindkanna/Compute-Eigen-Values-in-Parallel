@@ -14,7 +14,18 @@
 
 using namespace std;
 
+//UTILITY FUNCTIONS
 void print_mat(vector<vector<double> > mat, int size);
+void print_vec(vector<double> vec);
+bool check_for_symmetricity(vector<vector<double> > mat, int size);
+bool is_upper_triangular(vector<vector< double> > mat, int size);
+vector<vector<double> > transpose(vector<vector<double> > A, int size);
+vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double> > B, 
+	int size);
+pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<double> > mat,
+ int size);
+vector<double> find_eigens(vector<vector<double> > mat, int size);
+
 
 bool check_for_symmetricity(vector<vector<double> > mat, int size){
 	#pragma omp parallel for private(i, j)
@@ -26,7 +37,7 @@ bool check_for_symmetricity(vector<vector<double> > mat, int size){
 		}
 	}
 	return true;
-}//eof
+}
 
 bool is_upper_triangular(vector<vector< double> > mat, int size){
 	#pragma omp parallel for private(i, j)
@@ -55,7 +66,6 @@ vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double>
 	//multiplies A with B returns A*B
 	int i, j, m;
 	vector<vector<double> > C(size, vector<double> (size));
-	//#pragma omp parallel
 	#pragma omp parallel for private(m, j)
 	for(i=0;i<size;i++) {
 		for(j=0;j<size;j++) {
@@ -165,6 +175,14 @@ vector<double> find_eigens(vector<vector<double> > mat, int size){
 	return res;
 }
 
+void print_vec(vector<double> vec){
+	int l = vec.size();
+	for(int i=0;i<l;i++){
+		cout << vec[i] << "  " ;
+	}
+	cout << endl;
+}
+
 int main(){
 	int N;
 	cin >> N;
@@ -208,10 +226,11 @@ int main(){
 		return 0;
 	}
 
-	//pair<vector<vector<double> >, vector<vector<double> > > p = qr_decomp(mat, N);
-
 	//res is the vector which stores eigen values
-	vector<double> res = find_eigens(mat, N);
+	vector<double> res;
+	res = find_eigens(mat, N);
+	cout << "The eigen values are as follows: " << endl;
+	print_vec(res);
 
 	return 0;
 }
