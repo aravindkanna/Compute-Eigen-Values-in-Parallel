@@ -34,8 +34,8 @@ int main(){
 				mat[i][j] = mat[j][i];
 			}
 			else{
-				//mat[i][j] = rand()%100000 + 1;
-				mat[i][j] = j;
+				mat[i][j] = rand()%100000 + 1;
+				//mat[i][j] = j;
 			}
 			mfile << mat[i][j] << " " ;
 		}
