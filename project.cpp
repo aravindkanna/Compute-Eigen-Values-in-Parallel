@@ -12,6 +12,7 @@
 #include "omp.h"
 
 #define PI 3.14159265
+#define CHUNK 10
 
 using namespace std;
 
@@ -30,31 +31,41 @@ vector<double> find_eigens(vector<vector<double> > mat, int size);
 //#####################################################################################
 
 bool check_for_symmetricity(vector<vector<double> > mat, int size){
-	#pragma omp parallel for private(i, j)
+	int flag=0;
+	#pragma omp parallel for schedule(static, CHUNK)
 	for(int i=0;i<size;i++){
 		for(int j=i+1;j<size;j++){
 			if(mat[i][j] != mat[j][i]){
-				return false;
+				//return false;
+				flag=1;
 			}
 		}
+	}
+	if(flag){
+		return false;
 	}
 	return true;
 }
 
 bool is_upper_triangular(vector<vector< double> > mat, int size){
-	#pragma omp parallel for private(i, j)
+	int flag = 0;
+	#pragma omp parallel for schedule(static, CHUNK)
 	for(int i=1;i<size;i++){
 		for(int j=0;j<i;j++){
 			if(mat[i][j])
-				return false;
+				flag = 1;
+				//return false;
 		}	
+	}
+	if(flag){
+		return false;
 	}
 	return true;
 }
 
 vector<vector<double> > transpose(vector<vector<double> > A, int size){
 	vector<vector<double> > B(size, vector<double> (size));
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(static, CHUNK)
 	for(int i=0;i<size;i++){
 		for(int j=0;j<size;j++){
 			B[i][j] = A[j][i];
@@ -66,9 +77,9 @@ vector<vector<double> > transpose(vector<vector<double> > A, int size){
 vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double> > B, 
 	int size){
 	//multiplies A with B returns A*B
-	int i, j, m;
+	//int i, j, m;
 	vector<vector<double> > C(size, vector<double> (size));
-	#pragma omp parallel for private(m, j)
+	/*#pragma omp parallel for schedule(static, CHUNK)
 	for(i=0;i<size;i++) {
 		for(j=0;j<size;j++) {
 			C[i][j]=0.; // set initial value of resulting matrix C = 0
@@ -80,7 +91,24 @@ vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double>
 				}
 			}
 		}
-	}
+	}*/
+	int i=0, j=0, k=0;
+	//cout << "  The number of processors available = " << omp_get_num_procs ( ) << "\n";
+	//cout << "  The number of threads available    = " << omp_get_max_threads() <<  "\n";
+	#pragma omp parallel num_threads(12) shared(A, B, C, size) private(i, j, k)
+		{
+			#pragma omp for schedule(static, CHUNK)
+			for(i=0;i<size;i++){
+				for(j=0;j<size;j++){
+					C[i][j] = 0;
+					for(k=0;k<size;k++){
+						C[i][j] = C[i][j] + A[i][k]*B[k][j];
+					}
+				}
+			}
+		}
+	
+
 	return C;
 }//eof
 
@@ -90,7 +118,7 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 	vector<vector<double> > r(size, vector<double> (size));//Upper Triangular Matrix
 
 	int flag = 0;
-	#pragma omp parallel for private(i, j, ii)
+	#pragma omp parallel for schedule(static, CHUNK)
 	for(int j=0;j<size-1;j++){
 		for(int i=size-1;i>j;i--){
 			if(mat[i][j]){
@@ -152,7 +180,7 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 }
 
 void print_mat(vector<vector<double> > mat, int size){
-	#pragma omp parallel for private(i, j) 
+	#pragma omp parallel for schedule(static, CHUNK) 
 	for(int i=0;i<size;i++){
 		for(int j=0;j<size;j++){
 				cout << mat[i][j] << "     ";
@@ -167,7 +195,7 @@ vector<double> find_eigens(vector<vector<double> > mat, int size){
 		mat = mat_mul(p.second, p.first, size);
 	}	
 	vector<double> res(size);
-	#pragma omp parallel for private(i)
+	#pragma omp parallel for schedule(static, CHUNK)
 	for(int i=0;i<size;i++){
 		res[i] = mat[i][i];
 	}
@@ -233,6 +261,9 @@ int main(){
 	cout << "The eigen values are as follows: " << endl;
 	print_vec(res);
 	cout << end-start << endl;
-
+	/*clock_t start = clock();
+	mat = mat_mul(mat, mat, N);
+	clock_t end = clock();
+	cout << end-start << endl;*/
 	return 0;
 }
