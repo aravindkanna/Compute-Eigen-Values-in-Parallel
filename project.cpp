@@ -93,11 +93,12 @@ vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double>
 		}
 	}*/
 	int i=0, j=0, k=0;
+	//int num_procs = omp_get_num_procs();
 	//cout << "  The number of processors available = " << omp_get_num_procs ( ) << "\n";
 	//cout << "  The number of threads available    = " << omp_get_max_threads() <<  "\n";
 	#pragma omp parallel num_threads(12) shared(A, B, C, size) private(i, j, k)
 		{
-			#pragma omp for schedule(static, CHUNK)
+			#pragma omp for ordered schedule(static, CHUNK)
 			for(i=0;i<size;i++){
 				for(j=0;j<size;j++){
 					C[i][j] = 0;
