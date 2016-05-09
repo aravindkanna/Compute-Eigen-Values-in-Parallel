@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <ctime>
+#include <algorithm>
 
 #include "omp.h"
 
@@ -32,7 +33,7 @@ vector<double> find_eigens(vector<vector<double> > mat, int size);
 
 bool check_for_symmetricity(vector<vector<double> > mat, int size){
 	int flag=0;
-	#pragma omp parallel for schedule(static, CHUNK)
+	#pragma omp parallel for schedule(static)
 	for(int i=0;i<size;i++){
 		for(int j=i+1;j<size;j++){
 			if(mat[i][j] != mat[j][i]){
@@ -49,7 +50,7 @@ bool check_for_symmetricity(vector<vector<double> > mat, int size){
 
 bool is_upper_triangular(vector<vector< double> > mat, int size){
 	int flag = 0;
-	#pragma omp parallel for schedule(static, CHUNK)
+	#pragma omp parallel for schedule(static)
 	for(int i=1;i<size;i++){
 		for(int j=0;j<i;j++){
 			if(mat[i][j])
@@ -65,9 +66,10 @@ bool is_upper_triangular(vector<vector< double> > mat, int size){
 
 vector<vector<double> > transpose(vector<vector<double> > A, int size){
 	vector<vector<double> > B(size, vector<double> (size));
-	#pragma omp parallel for schedule(static, CHUNK)
+	#pragma omp parallel for ordered schedule(static)
 	for(int i=0;i<size;i++){
 		for(int j=0;j<size;j++){
+			#pragma omp ordered
 			B[i][j] = A[j][i];
 		}
 	}
@@ -77,13 +79,18 @@ vector<vector<double> > transpose(vector<vector<double> > A, int size){
 vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double> > B, 
 	int size){
 	//multiplies A with B returns A*B
-	//int i, j, m;
+	int i, j, m;
+	//int num_procs = omp_get_num_procs();
 	vector<vector<double> > C(size, vector<double> (size));
-	/*#pragma omp parallel for schedule(static, CHUNK)
+	#pragma omp parallel shared(A, B, C, size) private(i, j, m) 
+	#pragma omp for schedule(dynamic, 1024) ordered //nowait
+	//#pragma omp parallel for schedule(static)
 	for(i=0;i<size;i++) {
 		for(j=0;j<size;j++) {
 			C[i][j]=0.; // set initial value of resulting matrix C = 0
+			//#pragma omp for schedule(static) ordered
 			for(m=0;m<size;m++) {
+				#pragma omp ordered
 				C[i][j]=A[i][m]*B[m][j]+C[i][j];
 				if((C[i][j] < cos(90*PI/180) && C[i][j] > 0) 
 					|| (C[i][j] > -cos(90*PI/180) && C[i][j] < 0)){
@@ -91,12 +98,12 @@ vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double>
 				}
 			}
 		}
-	}*/
-	int i=0, j=0, k=0;
+	}
+	//int i=0, j=0, k=0;
 	//int num_procs = omp_get_num_procs();
 	//cout << "  The number of processors available = " << omp_get_num_procs ( ) << "\n";
 	//cout << "  The number of threads available    = " << omp_get_max_threads() <<  "\n";
-	#pragma omp parallel num_threads(12) shared(A, B, C, size) private(i, j, k)
+	/*#pragma omp parallel num_threads(12) shared(A, B, C, size) private(i, j, k)
 		{
 			#pragma omp for ordered schedule(static, CHUNK)
 			for(i=0;i<size;i++){
@@ -107,7 +114,7 @@ vector<vector<double> > mat_mul(vector<vector<double> > A, vector<vector<double>
 					}
 				}
 			}
-		}
+		}*/
 	
 
 	return C;
@@ -119,7 +126,7 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 	vector<vector<double> > r(size, vector<double> (size));//Upper Triangular Matrix
 
 	int flag = 0;
-	#pragma omp parallel for schedule(static, CHUNK)
+	#pragma omp parallel for schedule(dynamic, 1024)
 	for(int j=0;j<size-1;j++){
 		for(int i=size-1;i>j;i--){
 			if(mat[i][j]){
@@ -181,9 +188,10 @@ pair<vector<vector<double> >, vector<vector<double> > > qr_decomp(vector<vector<
 }
 
 void print_mat(vector<vector<double> > mat, int size){
-	#pragma omp parallel for schedule(static, CHUNK) 
+	#pragma omp parallel for ordered schedule(dynamic, 1024) 
 	for(int i=0;i<size;i++){
 		for(int j=0;j<size;j++){
+				#pragma omp ordered
 				cout << mat[i][j] << "     ";
 		}
 		cout << endl;
@@ -196,8 +204,9 @@ vector<double> find_eigens(vector<vector<double> > mat, int size){
 		mat = mat_mul(p.second, p.first, size);
 	}	
 	vector<double> res(size);
-	#pragma omp parallel for schedule(static, CHUNK)
+	#pragma omp parallel for ordered schedule(dynamic, 1024)
 	for(int i=0;i<size;i++){
+		#pragma omp ordered
 		res[i] = mat[i][i];
 	}
 	return res;
@@ -216,6 +225,7 @@ int main(){
 	cin >> N;
 	
 	vector<vector<double> > mat(N, vector<double> (N));
+	//int num_procs = omp_get_num_procs();
 
 	/***
 		Taking input from the file of size entered..
@@ -258,6 +268,7 @@ int main(){
 	vector<double> res;
 	clock_t start = clock();
 	res = find_eigens(mat, N);
+	sort(res.begin(), res.end());
 	clock_t end = clock();
 	cout << "The eigen values are as follows: " << endl;
 	print_vec(res);
